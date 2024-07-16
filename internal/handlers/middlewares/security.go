@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	jwtUtils "github.com/Abdelrhmanfdl/user-service/internal/utils/jwt"
@@ -44,6 +45,16 @@ func AssertUnauthenticated() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userId := ctx.GetString("userId")
 		if userId == "" {
+			ctx.Next()
+		} else {
+			ctx.Status(http.StatusForbidden)
+		}
+	}
+}
+
+func SecureGetUser() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		if ctx.Request.Header.Get("X-API-Key") == os.Getenv("GET_USER_API_KEY") {
 			ctx.Next()
 		} else {
 			ctx.Status(http.StatusForbidden)

@@ -69,3 +69,16 @@ func (userService *UserService) LoginUser(userDto models.DtoLoginRequest) (token
 
 	}
 }
+
+func (userService *UserService) GetUserData(userId string) (user *models.User, err error) {
+	user, err = userService.userRepository.GetUserById(userId)
+	if err != nil {
+		if _, ok := err.(*errs.NotFoundError); ok {
+			return nil, &errs.NotFoundError{Message: "user not found"}
+		} else {
+			return nil, err
+		}
+	}
+
+	return user, err
+}

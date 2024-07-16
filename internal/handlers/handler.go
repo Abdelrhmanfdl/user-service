@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/Abdelrhmanfdl/user-service/internal/errs"
 	"github.com/Abdelrhmanfdl/user-service/internal/models"
 	"github.com/Abdelrhmanfdl/user-service/internal/service"
 	"github.com/gin-gonic/gin"
@@ -26,7 +26,7 @@ func (h *RouterHandler) HandleLogin(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	log.Println("1:", loginBody.Email, loginBody.Password)
+
 	if token, err := h.userService.LoginUser(loginBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -48,5 +48,20 @@ func (h *RouterHandler) HandleSignup(ctx *gin.Context) {
 		return
 	} else {
 		ctx.JSON(http.StatusOK, gin.H{"token": token})
+	}
+}
+
+func (h *RouterHandler) HandleGetUserData(ctx *gin.Context) {
+	userId, isExisting := ctx.Params.Get("userId")
+
+	if !isExisting {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": errs.NotFoundUser{}.Message})
+	}
+
+	if user, err := h.userService.GetUserData(userId); err != nil {
+		// TODO: check error type
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		ctx.JSON(http.StatusOK, gin.H{"user": user})
 	}
 }
