@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/Abdelrhmanfdl/user-service/internal/errs"
@@ -63,5 +65,26 @@ func (h *RouterHandler) HandleGetUserData(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, gin.H{"user": user})
+	}
+}
+
+func (h *RouterHandler) HandleGetUsersData(ctx *gin.Context) {
+	body, err := io.ReadAll(ctx.Request.Body)
+	var userIds []string
+	if err != nil || json.Unmarshal(body, &userIds) != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	if users, err := h.userService.GetUsersData(userIds); err != nil {
+		// TODO: check error type
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		users, err := json.Marshal(users)
+		if err != nil {
+			ctx.Status(http.StatusInternalServerError)
+		}
+
+		ctx.Writer.WriteHeader(http.StatusOK)
+		ctx.Writer.Write(users)
 	}
 }

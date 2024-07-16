@@ -82,3 +82,11 @@ func (userService *UserService) GetUserData(userId string) (user *models.User, e
 
 	return user, err
 }
+
+func (userService *UserService) GetUsersData(userIds []string) (users []models.User, err error) {
+	users, err = userService.userRepository.GetUsersByIds(userIds)
+	if err != nil {
+		return nil, err
+	}
+	return users, err
+}

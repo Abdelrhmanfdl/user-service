@@ -51,6 +51,23 @@ func (s *ScyllaUserRepository) GetUserById(id string) (user *models.User, err er
 	}, nil
 }
 
+func (s *ScyllaUserRepository) GetUsersByIds(userIds []string) (users []models.User, err error) {
+	query := `SELECT id, username, email FROM users WHERE id = ?`
+	iter := s.session.Query(query, userIds).Iter()
+
+	var user models.User
+
+	for iter.Scan(&user.ID, &user.Username, &user.Email) {
+		users = append(users, user)
+	}
+
+	if err := iter.Close(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (s *ScyllaUserRepository) GetUserByEmail(email string) (user *models.User, err error) {
 	var userScylla scyllaUser
 	query := `SELECT id, username, email, password FROM users WHERE email = ?`

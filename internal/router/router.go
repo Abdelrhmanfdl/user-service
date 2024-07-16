@@ -16,7 +16,9 @@ func InitRouter(routerHandler *handlers.RouterHandler) {
 
 	r.POST("/signup", middlewares.AssertUnauthenticated(), routerHandler.HandleSignup)
 
-	r.POST("/getUserData/:userId", middlewares.SecureGetUser(), routerHandler.HandleGetUserData)
+	r.GET("/getUserData/:userId", middlewares.SecureGetUser(), routerHandler.HandleGetUserData)
+
+	r.POST("/getUsersData/", middlewares.SecureGetUser(), routerHandler.HandleGetUsersData)
 
 	r.Run(":" + os.Getenv("PORT"))
 }
