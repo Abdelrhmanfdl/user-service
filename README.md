@@ -1,1 +1,1 @@
-# user-service
+# Chat Chat Go - User Service
